@@ -1,0 +1,64 @@
+name: planet
+version: 0.1
+cabal-version: >= 1.8
+build-type: Custom
+license: BSD3
+copyright: Copyright (c) 2010 Anthonin Bonnefoy
+author: Anthonin Bonnefoy
+maintainer: anthonin.bonnefoy@gmail.com
+Stability:alpha
+Tested-With:GHC == 6.12.3
+category: Game
+synopsis: bots for google ai contest
+
+Library 
+  ghc-options: -Wall -fno-warn-orphans 
+  hs-source-dirs:  src
+  exposed-modules:
+  build-depends: base == 4.*
+                 ,containers == 0.3.*
+                 ,ghc == 6.*
+                 ,haskell98 == 1.0.*
+                 ,mtl == 1.1.*
+                 ,parsec == 3.*
+                 ,regex-posix == 0.94.*
+                 ,old-time >= 1.0.0
+                 ,bytestring >= 0.9.1.0
+
+Executable planetHs
+  Main-Is: Planet.hs
+  ghc-options: -Wall -fno-warn-orphans 
+  hs-source-dirs: prog src
+  build-depends: base == 4.*
+                 ,containers == 0.3.*
+                 ,ghc == 6.*
+                 ,haskell98 == 1.0.*
+                 ,mtl == 1.1.*
+                 ,parsec == 3.*
+                 ,old-time >= 1.0.0
+                 ,bytestring >= 0.9.1.0
+
+flag test
+  description: Build test program.
+  default:     False
+
+Executable test
+  hs-source-dirs:  testsuite/tests src 
+  main-is:         RunTestTH.hs
+  ghc-options: -Wall -fno-warn-orphans
+  other-modules: 
+    RunTestTH
+  build-depends: base == 4.*
+                 ,containers == 0.3.*
+                 ,ghc == 6.*
+                 ,haskell98 == 1.0.*
+                 ,mtl == 1.1.*
+                 ,parsec == 3.*
+                 ,bytestring >= 0.9.1.0
+                 ,HUnit == 1.2.*
+                 ,QuickCheck == 2.*
+                 ,test-framework == 0.3.*
+                 ,test-framework-hunit == 0.2.*
+                 ,test-framework-quickcheck2 == 0.2.*
+  if !flag(test)
+    buildable:     False
