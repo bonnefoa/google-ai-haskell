@@ -3,17 +3,24 @@ module Planet.Properties
 
 import Planet.Type
 import Test.QuickCheck
+import Data.Ratio
 
 instance Arbitrary Ownership where
   arbitrary = elements [Neutral, Ennemy, Ally]
 
 instance Arbitrary Planet where 
   arbitrary = do
-    gen_planetId <- arbitrary
-    gen_planetX <- arbitrary
-    gen_planetY <- arbitrary
+    let gen_planetId =0 
+    gen_planetX <- generateSmallDouble 
+    gen_planetY <- generateSmallDouble 
     gen_planetOwner <- arbitrary
     gen_planetNumberShip <- arbitrary
     gen_planetGrowthRate <- arbitrary
-    return $ Planet gen_planetId (gen_planetX *10)  (gen_planetY * 10) gen_planetOwner gen_planetNumberShip gen_planetGrowthRate
+    return $ Planet gen_planetId gen_planetX gen_planetY gen_planetOwner gen_planetNumberShip gen_planetGrowthRate
+
+generateSmallDouble :: Gen Double 
+generateSmallDouble = do
+  num <- elements [1..1000]
+  den <- elements [1..10]
+  return $ fromRational $ num % den
 

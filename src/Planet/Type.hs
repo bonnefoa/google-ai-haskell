@@ -20,7 +20,7 @@ data Planet = Planet {
   ,planetOwner :: Ownership
   ,planetNumberShip :: Integer
   ,planetGrowthRate :: Integer
- }
+ } deriving (Eq)
 
 data Fleet = Fleet {
   fleetSrc :: PlanetId
@@ -48,7 +48,4 @@ instance Show Ownership where
 instance Show Planet where
   show planet = intercalate " " ("P" :list)
     where list = map (\f -> f planet) [show . planetX, show . planetY, show . planetOwner, show . planetNumberShip, show . planetGrowthRate] 
-
-instance Eq Planet where
-  planet1 == planet2 = planetX planet1 == planetX planet2 && planetY planet1 == planetY planet2
 
