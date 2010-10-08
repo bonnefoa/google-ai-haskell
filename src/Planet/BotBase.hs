@@ -7,10 +7,13 @@ import Data.List
 import qualified Data.IntMap as M
 import Data.Ord
 
-sendShip :: Planet -> Planet -> Int -> PlanetState Order
-sendShip src dest numShip = return $ Order (planetId src) (planetId dest) numShip
+sendShip :: Planet -> Planet -> Int -> PlanetState (Maybe Order)
+sendShip src dest numShip 
+  | numShip <= 0 = return Nothing
+  | numberShip src < numShip  = return Nothing
+  | otherwise = return . Just $ Order (planetId src) (planetId dest) numShip
 
-sendShipWithDecisionAlgorithm :: Planet -> (Planet -> Planet -> Int) -> Planet -> PlanetState Order
+sendShipWithDecisionAlgorithm :: Planet -> ChooseShipAlgorithm -> Planet -> PlanetState (Maybe Order)
 sendShipWithDecisionAlgorithm dest alg src = sendShip src dest (alg src dest) 
 
 getAllPlanets :: PlanetState [Planet]
@@ -18,7 +21,7 @@ getAllPlanets = fmap M.elems (gets planets)
 
 getMyStrongestPlanet :: PlanetState [Planet]
 getMyStrongestPlanet = fmap 
-  (take 3 . reverse . filter (\pl -> numberShip pl >10)  . sortBy shipNumberOrdering . filter isAlly)
+  (take 3 . reverse . sortBy shipNumberOrdering . filter isAlly)
   getAllPlanets
 
 getWeakestPlanet :: PlanetState Planet

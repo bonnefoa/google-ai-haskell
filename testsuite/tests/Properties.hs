@@ -9,7 +9,9 @@ instance Arbitrary Ownership where
 
 instance Arbitrary GameState where
   arbitrary = do
-    gen_planets <- listOf1 arbitrary
+    ally_planet <- fmap (\a -> a {planetOwner = Ally} ) arbitrary
+    ennemy_planet <- fmap (\a -> a {planetOwner = Ennemy} ) arbitrary
+    gen_planets <- fmap (\l -> ally_planet : ennemy_planet : l) (listOf arbitrary)
     let keys = [0.. length gen_planets]
     gen_fleets <- listOf $ generateValidFleets keys
     return $ GameState (assignIdToPlanets gen_planets) gen_fleets 
@@ -28,7 +30,7 @@ instance Arbitrary Planet where
     gen_planetX <- generateSmallDouble 
     gen_planetY <- generateSmallDouble 
     gen_planetOwner <- arbitrary
-    gen_planetNumberShip <- fmap abs arbitrary
+    gen_planetNumberShip <- fmap ((+2) . abs) arbitrary
     gen_planetGrowthRate <- fmap abs arbitrary
     return $ Planet gen_planetId gen_planetX gen_planetY gen_planetOwner gen_planetNumberShip gen_planetGrowthRate
 

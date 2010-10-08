@@ -1,9 +1,12 @@
 module Planet.SimpleBotTest where
 
-import Test.QuickCheck
+import Control.Monad.State.Lazy
 
--- prop_sendOrder :: GameState -> Bool
--- prop_sendOrder gameState = 
-  
+import Planet.SimpleBot
+import Planet.Type
+
+prop_sendOrderWhenNoFleet :: GameState -> Bool
+prop_sendOrderWhenNoFleet gameState = (not . null) orders 
+  where orders = evalState act gameState {fleets = []}
 
 

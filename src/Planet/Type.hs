@@ -23,6 +23,14 @@ class Resource a where
 class Serialize a where
   serialize :: a -> String
 
+type ChooseShipAlgorithm = Planet -> Planet -> Int
+
+data AttackData = AttackData {
+  attackingPlanets :: [Planet]
+  ,attackedPlanet :: Planet
+  ,chooseShip :: ChooseShipAlgorithm
+ }
+
 data GameState = GameState {
   planets :: M.IntMap Planet
   ,fleets :: [Fleet]
