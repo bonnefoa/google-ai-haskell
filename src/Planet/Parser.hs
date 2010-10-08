@@ -10,17 +10,29 @@ import qualified Data.IntMap as M
 
 import Debug.Trace 
 
-parseGameState :: [String] -> GameState
-parseGameState = mconcat . map parseGameElement 
+-- parseGameState :: [String] -> GameState
+-- parseGameState = mconcat . map (parseGameElement M.empty)
 
-parseGameElement :: String -> GameState
-parseGameElement input = either (\err -> trace (show err) emptyGameState ) id $ parse gameStateParser' "parseGameState" input
+assignIdToPlanets :: [Planet] -> (M.IntMap Planet)
+assignIdToPlanets planetList = M.fromList $ map (\(tupleId,planet) -> (tupleId, planet{planetId = tupleId}) )  tuples
+  where tuples = (zip [0..] planetList)
 
 gameStateParser' :: GenParser Char st GameState
 gameStateParser' = 
   choice [
-    parsePlanet >>= \planet -> return $ GameState [planet] []
-    , parseFleet >>= \fleet -> return $ GameState [] [fleet]
+    parsePlanet >>= \planet -> return $ GameState (M.singleton 0 planet) []
+    ,parseFleet >>= \fleet -> return $ GameState mempty [fleet]
+  ]
+
+parseGameElement :: String -> ParsedElements
+parseGameElement input = 
+  either (\err -> trace (show err) mempty) id $
+  parse parseGameElement' "parseGameElement" input
+
+parseGameElement' :: GenParser Char st ParsedElements
+parseGameElement' = choice [
+    parsePlanet >>= \planet -> return $ ParsedElements [planet] []
+    ,parseFleet >>= \fleet -> return $ ParsedElements [] [fleet]
   ]
 
 parsePlanet :: GenParser Char st Planet
@@ -42,9 +54,9 @@ parseFleet = char 'F' >> spaces >>
   parseInt >>= \remainingTurns ->
   return $ Fleet planetSrc planetDes totalTurns remainingTurns owner numberShip
 
-parseInt :: GenParser Char st Integer
+parseInt :: GenParser Char st Int
 parseInt = parseSign >>= \sign ->
-  fmap (sign ) ( P.integer (P.makeTokenParser emptyDef) )
+  fmap (sign . fromIntegral ) ( P.integer (P.makeTokenParser emptyDef) )
 
 parseSign ::Num a => GenParser Char st (a -> a)
 parseSign = option id $

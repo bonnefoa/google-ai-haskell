@@ -3,65 +3,77 @@ module Planet.Type
 
 import Data.Monoid (Monoid, mempty, mappend)
 import Data.List
+import qualified Data.IntMap as M
 
 data Ownership = Ally | Ennemy | Neutral
-  deriving (Eq)
+  deriving (Eq, Show)
 
-type PlanetId = Integer
+type PlanetId = Int
 
 class Serialize a where
   serialize :: a -> String
 
 data GameState = GameState {
-  planets :: [Planet]
+  planets :: M.IntMap Planet
   ,fleets :: [Fleet]
  } deriving (Eq, Show)
 
 instance Monoid GameState where
-    mempty = GameState mempty mempty
-    mappend (GameState p1 f1) (GameState p2 f2) =
-        GameState (p1 `mappend` p2) (f1 `mappend` f2)
+   mempty = GameState mempty mempty 
+   mappend (GameState p1 f1) (GameState p2 f2) =
+       GameState (p1 `mappend` p2) (f1 `mappend` f2) 
+
+data ParsedElements = ParsedElements {
+    parsedPlanets :: [Planet]
+    ,parsedFleets :: [Fleet]
+ } deriving (Eq,Show)
+
+instance Monoid ParsedElements where
+  mempty = ParsedElements mempty mempty
+  mappend (ParsedElements p1 f1) (ParsedElements p2 f2) = 
+    ParsedElements (p1 `mappend` p2) (f1 `mappend` f2)
 
 data Planet = Planet {
   planetId :: PlanetId
   ,planetX :: Double
   ,planetY :: Double
   ,planetOwner :: Ownership
-  ,planetNumberShip :: Integer
-  ,planetGrowthRate :: Integer
+  ,planetNumberShip :: Int
+  ,planetGrowthRate :: Int
  } deriving (Eq, Show)
 
 data Fleet = Fleet {
   fleetSrc :: PlanetId
   ,fleetDest :: PlanetId
-  ,fleetTotalTripLength :: Integer
-  ,fleetRemainingTripLength :: Integer
+  ,fleetTotalTripLength :: Int
+  ,fleetRemainingTripLength :: Int
   ,fleetOwner :: Ownership
-  ,fleetNumberShip :: Integer
+  ,fleetNumberShip :: Int
  } deriving (Eq, Show)
 
 data Order = Order {
   orderSrc :: PlanetId
   ,orderDest :: PlanetId
-  ,orderNumberShip :: Integer
+  ,orderNumberShip :: Int
  } deriving (Eq, Show)
 
-emptyGameState :: GameState
-emptyGameState = GameState [] [] 
+instance Serialize Ownership where
+  serialize Neutral = "0"
+  serialize Ally = "1"
+  serialize Ennemy = "2" 
 
-instance Show Ownership where
-  show Neutral = "0"
-  show Ally = "1"
-  show Ennemy = "2" 
+instance Serialize Order where
+  serialize order = intercalate " " list
+    where list = map (\f -> f order)  [show . orderSrc, show . orderDest, show . orderNumberShip]
 
 instance Serialize GameState where
-  serialize game = intercalate "\n" ( (map serialize . planets) game ++ (map serialize . fleets) game )
+  serialize game = intercalate "\n" ( (map serialize) (M.elems $ planets game) ++ (map serialize . fleets) game )
 
 instance Serialize Planet where
   serialize planet = intercalate " " ("P" :list)
-    where list = map (\f -> f planet) [show . planetX, show . planetY, show . planetOwner, show . planetNumberShip, show . planetGrowthRate] 
+    where list = map (\f -> f planet) [show . planetX, show . planetY, serialize . planetOwner, show . planetNumberShip, show . planetGrowthRate] 
 
 instance Serialize Fleet where
   serialize fleet = intercalate " " ("F" :list)
-    where list = map (\f -> f fleet) [show . fleetOwner, show . fleetNumberShip, show . fleetSrc, show . fleetDest, show . fleetTotalTripLength, show . fleetRemainingTripLength] 
+    where list = map (\f -> f fleet) [serialize . fleetOwner, show . fleetNumberShip, show . fleetSrc, show . fleetDest, show . fleetTotalTripLength, show . fleetRemainingTripLength] 
 

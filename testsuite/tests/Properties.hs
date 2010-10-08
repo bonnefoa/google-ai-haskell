@@ -1,9 +1,10 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Planet.Properties  
   where
 
 import Planet.Type
 import Test.QuickCheck
-import Data.Ratio
+import qualified Data.IntMap as M
 
 instance Arbitrary Ownership where
   arbitrary = elements [Neutral, Ennemy, Ally]
@@ -11,8 +12,13 @@ instance Arbitrary Ownership where
 instance Arbitrary GameState where
   arbitrary = do
     gen_fleets <- listOf arbitrary
+    gen_planets <- arbitrary
+    return $ GameState gen_planets gen_fleets 
+
+instance Arbitrary (M.IntMap Planet) where
+  arbitrary = do
     gen_planets <- listOf arbitrary
-    return $ GameState gen_planets gen_fleets
+    return $ M.fromList (zip [0..] gen_planets)
 
 instance Arbitrary Planet where 
   arbitrary = do
@@ -37,6 +43,6 @@ instance Arbitrary Fleet where
 generateSmallDouble :: Gen Double 
 generateSmallDouble = do
   num <- elements [1..1000]
-  den <- elements [1,2,4,5,6,8,10]
-  return $ fromRational $ num % den
+  den <- elements [1,2,4,10]
+  return $ num / den
 
