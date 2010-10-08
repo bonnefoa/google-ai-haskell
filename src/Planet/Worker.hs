@@ -11,7 +11,7 @@ loop :: Bot -> IO()
 loop bot = do
   hSetBuffering stdin NoBuffering
   input <- getBatch []
-  let orders = evalState bot (parseGameState (unlines input))
+  let orders = evalState bot (parseGameMap (unlines input))
   mapM_ (putStrLn . serialize) orders
   finishTurn 
   loop bot

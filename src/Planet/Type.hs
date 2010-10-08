@@ -7,14 +7,14 @@ import Data.Monoid (Monoid, mempty, mappend)
 import Data.List
 import qualified Data.IntMap as M
 
-type PlanetState = State GameState
+type GameState = State GameMap
 
 data Ownership = Ally | Ennemy | Neutral
   deriving (Eq, Show)
 
 type PlanetId = Int
 
-type Bot = PlanetState [Order] 
+type Bot = GameState [Order] 
 
 class Resource a where
   owner :: a -> Ownership
@@ -31,15 +31,15 @@ data AttackData = AttackData {
   ,chooseShip :: ChooseShipAlgorithm
  }
 
-data GameState = GameState {
+data GameMap = GameMap {
   planets :: M.IntMap Planet
   ,fleets :: [Fleet]
  } deriving (Eq, Show)
 
-instance Monoid GameState where
-   mempty = GameState mempty mempty 
-   mappend (GameState p1 f1) (GameState p2 f2) =
-       GameState (p1 `mappend` p2) (f1 `mappend` f2) 
+instance Monoid GameMap where
+   mempty = GameMap mempty mempty 
+   mappend (GameMap p1 f1) (GameMap p2 f2) =
+       GameMap (p1 `mappend` p2) (f1 `mappend` f2) 
 
 data ParsedElements = ParsedElements {
     parsedPlanets :: [Planet]
@@ -89,7 +89,7 @@ instance Serialize Order where
   serialize order = intercalate " " list
     where list = map (\f -> f order)  [show . orderSrc, show . orderDest, show . orderNumberShip]
 
-instance Serialize GameState where
+instance Serialize GameMap where
   serialize game = intercalate "\n" ( map serialize (M.elems $ planets game) ++ (map serialize . fleets) game )
 
 instance Serialize Planet where

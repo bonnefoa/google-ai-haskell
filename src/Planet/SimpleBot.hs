@@ -4,8 +4,8 @@ import Planet.BotBase
 import Planet.Type
 import Data.Maybe
 
-act :: Bot
-act = do 
+simpleBot :: Bot
+simpleBot = do 
   fleetAttacking <- currentAllyFleetInMovement 
   if fleetAttacking > 1 
      then return []

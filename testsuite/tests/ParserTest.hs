@@ -7,8 +7,8 @@ import Data.Monoid
 
 prop_parsePlanet :: [Planet] -> Bool
 prop_parsePlanet planet = 
-  expectedState == parsedGameState
-  where parsedGameState = parseGameElements (serialize planet)
+  expectedState == parsedGameMap
+  where parsedGameMap = parseGameElements (serialize planet)
         expectedState = mempty {parsedPlanets = planet} 
 
 prop_parseFleet :: [Fleet] -> Bool
@@ -17,8 +17,8 @@ prop_parseFleet fleet =
   where parsedElement = parseGameElements (serialize fleet)
         expectedState = mempty {parsedFleets = fleet} 
  
-prop_parseGame :: GameState -> Bool
+prop_parseGame :: GameMap -> Bool
 prop_parseGame gameState = 
-  gameState == parsedGameState
-  where parsedGameState = parseGameState (serialize gameState)
+  gameState == parsedGameMap
+  where parsedGameMap = parseGameMap (serialize gameState)
 

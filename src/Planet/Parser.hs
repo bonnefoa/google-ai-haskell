@@ -9,18 +9,18 @@ import Text.ParserCombinators.Parsec.Language
 
 import Debug.Trace 
 
-parseGameState :: String -> GameState
-parseGameState input = either (\err -> trace (show err) mempty) id $
-  parse parseGameState' "parseGameState" input
+parseGameMap :: String -> GameMap
+parseGameMap input = either (\err -> trace (show err) mempty) id $
+  parse parseGameMap' "parseGameMap" input
 
 parseGameElements :: String -> ParsedElements
 parseGameElements input = 
   either (\err -> trace (show err) mempty) id $
   parse parseGameElements' "parseGameElement" input
 
-parseGameState' :: GenParser Char st GameState
-parseGameState' = parseGameElements' >>= \parsedElements ->
-  return $ GameState (assignIdToPlanets $ parsedPlanets parsedElements) (parsedFleets parsedElements)
+parseGameMap' :: GenParser Char st GameMap
+parseGameMap' = parseGameElements' >>= \parsedElements ->
+  return $ GameMap (assignIdToPlanets $ parsedPlanets parsedElements) (parsedFleets parsedElements)
 
 parseGameElements' :: GenParser Char st ParsedElements
 parseGameElements' = fmap mconcat $ many parseSingleElement
@@ -36,20 +36,20 @@ parsePlanet :: GenParser Char st Planet
 parsePlanet = char 'P' >> spaces >>
   parseFloat >>= \x -> spaces >>
   parseFloat >>= \y -> spaces >>
-  parseOwner >>= \owner ->  spaces >>
-  parseInt >>= \numberShip -> spaces >>
+  parseOwner >>= \parsed_owner ->  spaces >>
+  parseInt >>= \parsed_numberShip -> spaces >>
   parseInt >>= \growthRate ->
-  return $ Planet 0 x y owner numberShip growthRate
+  return $ Planet 0 x y parsed_owner parsed_numberShip growthRate
 
 parseFleet :: GenParser Char st Fleet
 parseFleet = char 'F' >> spaces >>
-  parseOwner >>= \owner -> spaces >>
-  parseInt >>= \numberShip -> spaces >>
+  parseOwner >>= \parsed_owner -> spaces >>
+  parseInt >>= \parsed_numberShip -> spaces >>
   parseInt >>= \planetSrc -> spaces >>
   parseInt >>= \planetDes -> spaces >>
   parseInt >>= \totalTurns -> spaces >>
   parseInt >>= \remainingTurns ->
-  return $ Fleet planetSrc planetDes totalTurns remainingTurns owner numberShip
+  return $ Fleet planetSrc planetDes totalTurns remainingTurns parsed_owner parsed_numberShip
 
 parseInt :: GenParser Char st Int
 parseInt = parseSign >>= \sign ->

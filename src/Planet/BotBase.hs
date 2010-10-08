@@ -7,24 +7,24 @@ import Data.List
 import qualified Data.IntMap as M
 import Data.Ord
 
-sendShip :: Planet -> Planet -> Int -> PlanetState (Maybe Order)
+sendShip :: Planet -> Planet -> Int -> GameState (Maybe Order)
 sendShip src dest numShip 
   | numShip <= 0 = return Nothing
   | numberShip src < numShip  = return Nothing
   | otherwise = return . Just $ Order (planetId src) (planetId dest) numShip
 
-sendShipWithDecisionAlgorithm :: Planet -> ChooseShipAlgorithm -> Planet -> PlanetState (Maybe Order)
+sendShipWithDecisionAlgorithm :: Planet -> ChooseShipAlgorithm -> Planet -> GameState (Maybe Order)
 sendShipWithDecisionAlgorithm dest alg src = sendShip src dest (alg src dest) 
 
-getAllPlanets :: PlanetState [Planet]
+getAllPlanets :: GameState [Planet]
 getAllPlanets = fmap M.elems (gets planets)
 
-getMyStrongestPlanet :: PlanetState [Planet]
+getMyStrongestPlanet :: GameState [Planet]
 getMyStrongestPlanet = fmap 
   (take 3 . reverse . sortBy shipNumberOrdering . filter isAlly)
   getAllPlanets
 
-getWeakestPlanet :: PlanetState Planet
+getWeakestPlanet :: GameState Planet
 getWeakestPlanet = fmap 
   (head . sortBy shipNumberOrdering . filter isTakable)
   getAllPlanets
@@ -35,19 +35,19 @@ shipNumberOrdering = comparing numberShip
 growthRateOrdering :: Planet -> Planet -> Ordering
 growthRateOrdering = comparing planetGrowthRate
 
-getPlanetById :: PlanetId -> PlanetState Planet
+getPlanetById :: PlanetId -> GameState Planet
 getPlanetById pId = do
   theMap <- gets planets 
   return $ theMap M.! pId
 
-modifyPlanet :: PlanetId -> (Planet -> Planet) -> PlanetState ()
+modifyPlanet :: PlanetId -> (Planet -> Planet) -> GameState ()
 modifyPlanet key f = modify 
   ( \gameState -> gameState {planets = M.adjust f key (planets gameState) } )
 
-currentAllyFleetInMovement :: PlanetState Int
+currentAllyFleetInMovement :: GameState Int
 currentAllyFleetInMovement = fmap (length . filter isAlly) (gets fleets) 
 
-currentEnnemyFleetInMovement :: PlanetState Int
+currentEnnemyFleetInMovement :: GameState Int
 currentEnnemyFleetInMovement = fmap (length . filter isEnnemy) (gets fleets) 
 
 isAlly :: (Resource a) => a -> Bool

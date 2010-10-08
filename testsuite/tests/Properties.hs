@@ -7,14 +7,14 @@ import Test.QuickCheck
 instance Arbitrary Ownership where
   arbitrary = elements [Neutral, Ennemy, Ally]
 
-instance Arbitrary GameState where
+instance Arbitrary GameMap where
   arbitrary = do
     ally_planet <- fmap (\a -> a {planetOwner = Ally} ) arbitrary
     ennemy_planet <- fmap (\a -> a {planetOwner = Ennemy} ) arbitrary
     gen_planets <- fmap (\l -> ally_planet : ennemy_planet : l) (listOf arbitrary)
     let keys = [0.. length gen_planets]
     gen_fleets <- listOf $ generateValidFleets keys
-    return $ GameState (assignIdToPlanets gen_planets) gen_fleets 
+    return $ GameMap (assignIdToPlanets gen_planets) gen_fleets 
 
 generateValidFleets :: [PlanetId] -> Gen Fleet
 generateValidFleets keyList = do
