@@ -44,7 +44,7 @@ flag test
 
 Executable test
   hs-source-dirs:  testsuite/tests src 
-  main-is:         RunTestTH.hs
+  main-is:         Planet.hs
   ghc-options: -Wall -fno-warn-orphans
   other-modules: 
     RunTestTH

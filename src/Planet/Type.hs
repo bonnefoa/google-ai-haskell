@@ -2,14 +2,22 @@
 module Planet.Type 
   where
 
+import Control.Monad.State.Lazy
 import Data.Monoid (Monoid, mempty, mappend)
 import Data.List
 import qualified Data.IntMap as M
+
+type PlanetState = State GameState
 
 data Ownership = Ally | Ennemy | Neutral
   deriving (Eq, Show)
 
 type PlanetId = Int
+
+type Bot = PlanetState [Order] 
+
+class Resource a where
+  owner :: a -> Ownership
 
 class Serialize a where
   serialize :: a -> String
@@ -59,9 +67,9 @@ data Order = Order {
   ,orderNumberShip :: Int
  } deriving (Eq, Show)
 
-assignIdToPlanets :: [Planet] -> (M.IntMap Planet)
+assignIdToPlanets :: [Planet] -> M.IntMap Planet
 assignIdToPlanets planetList = M.fromList $ map (\(tupleId,planet) -> (tupleId, planet{planetId = tupleId}) )  tuples
-  where tuples = (zip [0..] planetList)
+  where tuples = zip [0..] planetList
 
 instance Serialize Ownership where
   serialize Neutral = "0"
@@ -73,7 +81,7 @@ instance Serialize Order where
     where list = map (\f -> f order)  [show . orderSrc, show . orderDest, show . orderNumberShip]
 
 instance Serialize GameState where
-  serialize game = intercalate "\n" ( (map serialize) (M.elems $ planets game) ++ (map serialize . fleets) game )
+  serialize game = intercalate "\n" ( map serialize (M.elems $ planets game) ++ (map serialize . fleets) game )
 
 instance Serialize Planet where
   serialize planet = intercalate " " ("P" :list)
@@ -81,6 +89,9 @@ instance Serialize Planet where
 
 instance Serialize [Planet] where
   serialize list = intercalate "\n" (map serialize list)  
+
+instance Resource Fleet where
+  owner = fleetOwner 
 
 instance Serialize Fleet where
   serialize fleet = intercalate " " ("F" :list)

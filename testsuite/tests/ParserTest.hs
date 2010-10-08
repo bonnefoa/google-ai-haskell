@@ -20,5 +20,5 @@ prop_parseFleet fleet =
 prop_parseGame :: GameState -> Bool
 prop_parseGame gameState = 
   gameState == parsedGameState
-  where parsedGameState = parseGameState (serialize $ gameState)
+  where parsedGameState = parseGameState (serialize gameState)
 

@@ -1,10 +1,8 @@
-{-# LANGUAGE FlexibleInstances #-}
 module Planet.Properties  
   where
 
 import Planet.Type
 import Test.QuickCheck
-import qualified Data.IntMap as M
 
 instance Arbitrary Ownership where
   arbitrary = elements [Neutral, Ennemy, Ally]
