@@ -6,28 +6,21 @@ import Data.Monoid
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Token as P
 import Text.ParserCombinators.Parsec.Language
-import qualified Data.IntMap as M
 
 import Debug.Trace 
 
--- parseGameState :: [String] -> GameState
--- parseGameState = mconcat . map (parseGameElement M.empty)
-
-assignIdToPlanets :: [Planet] -> (M.IntMap Planet)
-assignIdToPlanets planetList = M.fromList $ map (\(tupleId,planet) -> (tupleId, planet{planetId = tupleId}) )  tuples
-  where tuples = (zip [0..] planetList)
-
-gameStateParser' :: GenParser Char st GameState
-gameStateParser' = 
-  choice [
-    parsePlanet >>= \planet -> return $ GameState (M.singleton 0 planet) []
-    ,parseFleet >>= \fleet -> return $ GameState mempty [fleet]
-  ]
+parseGameState :: String -> GameState
+parseGameState input = either (\err -> trace (show err) mempty) id $
+  parse parseGameState' "parseGameState" input
 
 parseGameElements :: String -> ParsedElements
 parseGameElements input = 
   either (\err -> trace (show err) mempty) id $
   parse parseGameElements' "parseGameElement" input
+
+parseGameState' :: GenParser Char st GameState
+parseGameState' = parseGameElements' >>= \parsedElements ->
+  return $ GameState (assignIdToPlanets $ parsedPlanets parsedElements) (parsedFleets parsedElements)
 
 parseGameElements' :: GenParser Char st ParsedElements
 parseGameElements' = fmap mconcat $ many parseSingleElement

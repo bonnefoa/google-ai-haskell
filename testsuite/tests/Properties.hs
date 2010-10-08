@@ -13,16 +13,11 @@ instance Arbitrary GameState where
   arbitrary = do
     gen_fleets <- listOf arbitrary
     gen_planets <- arbitrary
-    return $ GameState gen_planets gen_fleets 
-
-instance Arbitrary (M.IntMap Planet) where
-  arbitrary = do
-    gen_planets <- listOf arbitrary
-    return $ M.fromList (zip [0..] gen_planets)
+    return $ GameState (assignIdToPlanets gen_planets) gen_fleets 
 
 instance Arbitrary Planet where 
   arbitrary = do
-    let gen_planetId =0 
+    let gen_planetId = 0 
     gen_planetX <- generateSmallDouble 
     gen_planetY <- generateSmallDouble 
     gen_planetOwner <- arbitrary

@@ -59,6 +59,10 @@ data Order = Order {
   ,orderNumberShip :: Int
  } deriving (Eq, Show)
 
+assignIdToPlanets :: [Planet] -> (M.IntMap Planet)
+assignIdToPlanets planetList = M.fromList $ map (\(tupleId,planet) -> (tupleId, planet{planetId = tupleId}) )  tuples
+  where tuples = (zip [0..] planetList)
+
 instance Serialize Ownership where
   serialize Neutral = "0"
   serialize Ally = "1"

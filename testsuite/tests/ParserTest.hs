@@ -17,9 +17,8 @@ prop_parseFleet fleet =
   where parsedElement = parseGameElements (serialize fleet)
         expectedState = mempty {parsedFleets = fleet} 
  
-{-
 prop_parseGame :: GameState -> Bool
 prop_parseGame gameState = 
   gameState == parsedGameState
-  where parsedGameState = parseGameState (lines .  serialize $ gameState)
--}
+  where parsedGameState = parseGameState (serialize $ gameState)
+
