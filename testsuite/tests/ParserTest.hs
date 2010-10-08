@@ -7,17 +7,17 @@ import Planet.Type
 prop_parsePlanet :: Planet -> Bool
 prop_parsePlanet planet = 
   expectedState == parsedGameState
-  where parsedGameState = parseGameElement (show planet)
+  where parsedGameState = parseGameElement (serialize planet)
         expectedState = emptyGameState {planets = [planet]} 
 
 prop_parseFleet :: Fleet -> Bool
 prop_parseFleet fleet = 
   expectedState == parsedGameState
-  where parsedGameState = parseGameElement (show fleet)
+  where parsedGameState = parseGameElement (serialize fleet)
         expectedState = emptyGameState {fleets = [fleet]} 
  
 prop_parseGame :: GameState -> Bool
 prop_parseGame gameState = 
   gameState == parsedGameState
-  where parsedGameState = parseGameState (lines .  show $ gameState)
+  where parsedGameState = parseGameState (lines .  serialize $ gameState)
 

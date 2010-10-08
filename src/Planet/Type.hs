@@ -9,10 +9,13 @@ data Ownership = Ally | Ennemy | Neutral
 
 type PlanetId = Integer
 
+class Serialize a where
+  serialize :: a -> String
+
 data GameState = GameState {
   planets :: [Planet]
   ,fleets :: [Fleet]
- } deriving (Eq)
+ } deriving (Eq, Show)
 
 instance Monoid GameState where
     mempty = GameState mempty mempty
@@ -26,7 +29,7 @@ data Planet = Planet {
   ,planetOwner :: Ownership
   ,planetNumberShip :: Integer
   ,planetGrowthRate :: Integer
- } deriving (Eq)
+ } deriving (Eq, Show)
 
 data Fleet = Fleet {
   fleetSrc :: PlanetId
@@ -35,13 +38,13 @@ data Fleet = Fleet {
   ,fleetRemainingTripLength :: Integer
   ,fleetOwner :: Ownership
   ,fleetNumberShip :: Integer
- } deriving (Eq)
+ } deriving (Eq, Show)
 
 data Order = Order {
   orderSrc :: PlanetId
   ,orderDest :: PlanetId
   ,orderNumberShip :: Integer
- } deriving (Eq)
+ } deriving (Eq, Show)
 
 emptyGameState :: GameState
 emptyGameState = GameState [] [] 
@@ -51,14 +54,14 @@ instance Show Ownership where
   show Ally = "1"
   show Ennemy = "2" 
 
-instance Show GameState where
-  show game = intercalate "\n" ( (map show . planets) game ++ (map show . fleets) game )
+instance Serialize GameState where
+  serialize game = intercalate "\n" ( (map serialize . planets) game ++ (map serialize . fleets) game )
 
-instance Show Planet where
-  show planet = intercalate " " ("P" :list)
+instance Serialize Planet where
+  serialize planet = intercalate " " ("P" :list)
     where list = map (\f -> f planet) [show . planetX, show . planetY, show . planetOwner, show . planetNumberShip, show . planetGrowthRate] 
 
-instance Show Fleet where
-  show fleet = intercalate " " ("F" :list)
+instance Serialize Fleet where
+  serialize fleet = intercalate " " ("F" :list)
     where list = map (\f -> f fleet) [show . fleetOwner, show . fleetNumberShip, show . fleetSrc, show . fleetDest, show . fleetTotalTripLength, show . fleetRemainingTripLength] 
 
