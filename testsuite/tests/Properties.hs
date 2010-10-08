@@ -9,9 +9,18 @@ instance Arbitrary Ownership where
 
 instance Arbitrary GameState where
   arbitrary = do
-    gen_fleets <- listOf arbitrary
-    gen_planets <- arbitrary
+    gen_planets <- listOf1 arbitrary
+    let keys = [0.. length gen_planets]
+    gen_fleets <- listOf $ generateValidFleets keys
     return $ GameState (assignIdToPlanets gen_planets) gen_fleets 
+
+generateValidFleets :: [PlanetId] -> Gen Fleet
+generateValidFleets keyList = do
+  let generator = elements keyList
+  src <- generator
+  dest <- suchThat generator (/= src) 
+  fleet <- arbitrary
+  return $ fleet { fleetSrc = src, fleetDest = dest }
 
 instance Arbitrary Planet where 
   arbitrary = do
@@ -19,19 +28,19 @@ instance Arbitrary Planet where
     gen_planetX <- generateSmallDouble 
     gen_planetY <- generateSmallDouble 
     gen_planetOwner <- arbitrary
-    gen_planetNumberShip <- arbitrary
-    gen_planetGrowthRate <- arbitrary
+    gen_planetNumberShip <- fmap abs arbitrary
+    gen_planetGrowthRate <- fmap abs arbitrary
     return $ Planet gen_planetId gen_planetX gen_planetY gen_planetOwner gen_planetNumberShip gen_planetGrowthRate
 
 instance Arbitrary Fleet where 
   arbitrary = do
     gen_fleetOwner <- arbitrary
-    gen_fleetNumberShip <- arbitrary
-    gen_fleetSrc <- arbitrary
-    gen_fleetDst <- arbitrary
-    gen_fleetTotalTurns <- arbitrary
-    gen_fleetRemainingTurns <- arbitrary
-    return $ Fleet gen_fleetOwner gen_fleetNumberShip gen_fleetSrc gen_fleetDst gen_fleetTotalTurns gen_fleetRemainingTurns
+    gen_fleetNumberShip <- fmap abs arbitrary
+    gen_fleetSrc <- fmap abs arbitrary
+    gen_fleetDst <- fmap abs arbitrary
+    gen_fleetTotalTurns <- fmap abs arbitrary
+    gen_fleetRemainingTurns <- fmap abs arbitrary
+    return $ Fleet gen_fleetNumberShip gen_fleetSrc gen_fleetDst gen_fleetTotalTurns gen_fleetOwner gen_fleetRemainingTurns
 
 generateSmallDouble :: Gen Double 
 generateSmallDouble = do

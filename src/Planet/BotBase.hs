@@ -3,10 +3,34 @@ module Planet.BotBase
 
 import Planet.Type 
 import Control.Monad.State.Lazy
+import Data.List
 import qualified Data.IntMap as M
+import Data.Ord
 
--- attackNearestPlanet :: Planet -> PlanetState Order
--- attackNearestPlanet home = 
+sendShip :: Planet -> Planet -> Int -> PlanetState Order
+sendShip src dest numShip = return $ Order (planetId src) (planetId dest) numShip
+
+sendShipWithDecisionAlgorithm :: Planet -> (Planet -> Planet -> Int) -> Planet -> PlanetState Order
+sendShipWithDecisionAlgorithm dest alg src = sendShip src dest (alg src dest) 
+
+getAllPlanets :: PlanetState [Planet]
+getAllPlanets = fmap M.elems (gets planets)
+
+getMyStrongestPlanet :: PlanetState [Planet]
+getMyStrongestPlanet = fmap 
+  (take 3 . reverse . filter (\pl -> numberShip pl >10)  . sortBy shipNumberOrdering . filter isAlly)
+  getAllPlanets
+
+getWeakestPlanet :: PlanetState Planet
+getWeakestPlanet = fmap 
+  (head . sortBy shipNumberOrdering . filter isTakable)
+  getAllPlanets
+
+shipNumberOrdering :: Resource a => a -> a -> Ordering
+shipNumberOrdering = comparing numberShip 
+
+growthRateOrdering :: Planet -> Planet -> Ordering
+growthRateOrdering = comparing planetGrowthRate
 
 getPlanetById :: PlanetId -> PlanetState Planet
 getPlanetById pId = do
@@ -16,15 +40,6 @@ getPlanetById pId = do
 modifyPlanet :: PlanetId -> (Planet -> Planet) -> PlanetState ()
 modifyPlanet key f = modify 
   ( \gameState -> gameState {planets = M.adjust f key (planets gameState) } )
-
-changeState :: Order -> PlanetState ()
-changeState (Order planetSrc planetDest numShip) = 
-  -- let src = getPlanetById planetSrc
-  -- let dest = getPlanetById planetDest
-  return ()
-
-sendShip :: Planet -> Planet -> Int -> PlanetState Order
-sendShip src dest numShip = return $ Order (planetId src) (planetId dest) numShip
 
 currentAllyFleetInMovement :: PlanetState Int
 currentAllyFleetInMovement = fmap (length . filter isAlly) (gets fleets) 
@@ -41,4 +56,6 @@ isEnnemy r = owner r == Ennemy
 isNeutral :: (Resource a) => a -> Bool
 isNeutral r = owner r == Neutral
 
+isTakable :: (Resource a) => a -> Bool
+isTakable r = isEnnemy r || isNeutral r
 

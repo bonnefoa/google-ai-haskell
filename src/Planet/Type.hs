@@ -18,6 +18,7 @@ type Bot = PlanetState [Order]
 
 class Resource a where
   owner :: a -> Ownership
+  numberShip :: a -> Int
 
 class Serialize a where
   serialize :: a -> String
@@ -90,8 +91,13 @@ instance Serialize Planet where
 instance Serialize [Planet] where
   serialize list = intercalate "\n" (map serialize list)  
 
+instance Resource Planet where
+  owner = planetOwner
+  numberShip = planetNumberShip
+
 instance Resource Fleet where
   owner = fleetOwner 
+  numberShip = fleetNumberShip
 
 instance Serialize Fleet where
   serialize fleet = intercalate " " ("F" :list)
@@ -99,3 +105,7 @@ instance Serialize Fleet where
 
 instance Serialize [Fleet] where
   serialize list = intercalate "\n" (map serialize list)  
+
+instance Ord Planet where
+  r1 <= r2 = numberShip r1 <= numberShip r2
+
