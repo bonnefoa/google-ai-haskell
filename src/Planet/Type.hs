@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Planet.Type 
   where
 
@@ -27,6 +28,7 @@ data ParsedElements = ParsedElements {
     parsedPlanets :: [Planet]
     ,parsedFleets :: [Fleet]
  } deriving (Eq,Show)
+
 
 instance Monoid ParsedElements where
   mempty = ParsedElements mempty mempty
@@ -73,7 +75,12 @@ instance Serialize Planet where
   serialize planet = intercalate " " ("P" :list)
     where list = map (\f -> f planet) [show . planetX, show . planetY, serialize . planetOwner, show . planetNumberShip, show . planetGrowthRate] 
 
+instance Serialize [Planet] where
+  serialize list = intercalate "\n" (map serialize list)  
+
 instance Serialize Fleet where
   serialize fleet = intercalate " " ("F" :list)
     where list = map (\f -> f fleet) [serialize . fleetOwner, show . fleetNumberShip, show . fleetSrc, show . fleetDest, show . fleetTotalTripLength, show . fleetRemainingTripLength] 
 
+instance Serialize [Fleet] where
+  serialize list = intercalate "\n" (map serialize list)  

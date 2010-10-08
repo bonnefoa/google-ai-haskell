@@ -5,17 +5,17 @@ import Planet.Parser
 import Planet.Type
 import Data.Monoid
 
-prop_parsePlanet :: Planet -> Bool
+prop_parsePlanet :: [Planet] -> Bool
 prop_parsePlanet planet = 
   expectedState == parsedGameState
-  where parsedGameState = parseGameElement (serialize planet)
-        expectedState = mempty {parsedPlanets = [planet]} 
+  where parsedGameState = parseGameElements (serialize planet)
+        expectedState = mempty {parsedPlanets = planet} 
 
-prop_parseFleet :: Fleet -> Bool
+prop_parseFleet :: [Fleet] -> Bool
 prop_parseFleet fleet = 
   expectedState == parsedElement
-  where parsedElement = parseGameElement (serialize fleet)
-        expectedState = mempty {parsedFleets = [fleet]} 
+  where parsedElement = parseGameElements (serialize fleet)
+        expectedState = mempty {parsedFleets = fleet} 
  
 {-
 prop_parseGame :: GameState -> Bool

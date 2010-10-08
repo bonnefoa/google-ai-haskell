@@ -24,16 +24,20 @@ gameStateParser' =
     ,parseFleet >>= \fleet -> return $ GameState mempty [fleet]
   ]
 
-parseGameElement :: String -> ParsedElements
-parseGameElement input = 
+parseGameElements :: String -> ParsedElements
+parseGameElements input = 
   either (\err -> trace (show err) mempty) id $
-  parse parseGameElement' "parseGameElement" input
+  parse parseGameElements' "parseGameElement" input
 
-parseGameElement' :: GenParser Char st ParsedElements
-parseGameElement' = choice [
-    parsePlanet >>= \planet -> return $ ParsedElements [planet] []
-    ,parseFleet >>= \fleet -> return $ ParsedElements [] [fleet]
-  ]
+parseGameElements' :: GenParser Char st ParsedElements
+parseGameElements' = fmap mconcat $ many parseSingleElement
+
+parseSingleElement :: GenParser Char st ParsedElements
+parseSingleElement = choice [ 
+   parsePlanet >>= \planet -> return $ ParsedElements [planet] []
+   ,parseFleet >>= \fleet -> return $ ParsedElements [] [fleet]
+   ,skipMany1 (noneOf "PF")  >> return mempty
+  ] 
 
 parsePlanet :: GenParser Char st Planet
 parsePlanet = char 'P' >> spaces >>
