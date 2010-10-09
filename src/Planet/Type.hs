@@ -61,6 +61,9 @@ data Planet = Planet {
   ,planetGrowthRate :: Int
  } deriving (Eq, Show)
 
+(-+) :: Planet -> Int -> Planet
+pl -+ numShip = pl { planetNumberShip = planetNumberShip pl + numShip} 
+
 data Fleet = Fleet {
   fleetSrc :: PlanetId
   ,fleetDest :: PlanetId
@@ -69,6 +72,9 @@ data Fleet = Fleet {
   ,fleetOwner :: Ownership
   ,fleetNumberShip :: Int
  } deriving (Eq, Show)
+
+advanceFleet :: Fleet -> Fleet
+advanceFleet fl = fl { fleetRemainingTripLength = fleetRemainingTripLength fl - 1}
 
 data Order = Order {
   orderSrc :: PlanetId

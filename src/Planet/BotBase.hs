@@ -40,10 +40,6 @@ getPlanetById pId = do
   theMap <- gets planets 
   return $ theMap M.! pId
 
-modifyPlanet :: PlanetId -> (Planet -> Planet) -> GameState ()
-modifyPlanet key f = modify 
-  ( \gameState -> gameState {planets = M.adjust f key (planets gameState) } )
-
 currentAllyFleetInMovement :: GameState Int
 currentAllyFleetInMovement = fmap (length . filter isAlly) (gets fleets) 
 
@@ -62,3 +58,5 @@ isNeutral r = owner r == Neutral
 isTakable :: (Resource a) => a -> Bool
 isTakable r = isEnnemy r || isNeutral r
 
+isOccupied :: (Resource a) => a -> Bool
+isOccupied r = isEnnemy r || isAlly r
