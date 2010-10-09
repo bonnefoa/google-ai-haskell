@@ -31,6 +31,13 @@ data AttackData = AttackData {
   ,chooseShip :: ChooseShipAlgorithm
  }
 
+data GameStat = GameStat {
+  allyShipOnPlanets :: Int
+  ,allyShipOnFleets :: Int
+  ,ennemyShipOnPlanets :: Int
+  ,ennemyShipOnFleets :: Int
+ }
+
 data GameMap = GameMap {
   planets :: M.IntMap Planet
   ,fleets :: [Fleet]

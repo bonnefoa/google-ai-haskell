@@ -30,19 +30,23 @@ instance Arbitrary Planet where
     gen_planetX <- generateSmallDouble 
     gen_planetY <- generateSmallDouble 
     gen_planetOwner <- arbitrary
-    gen_planetNumberShip <- fmap ((+2) . abs) arbitrary
-    gen_planetGrowthRate <- fmap abs arbitrary
+    gen_planetNumberShip <- generateSmallPositiveInt
+    gen_planetGrowthRate <- generateSmallPositiveInt
     return $ Planet gen_planetId gen_planetX gen_planetY gen_planetOwner gen_planetNumberShip gen_planetGrowthRate
 
 instance Arbitrary Fleet where 
   arbitrary = do
     gen_fleetOwner <- arbitrary
-    gen_fleetNumberShip <- fmap abs arbitrary
-    gen_fleetSrc <- fmap abs arbitrary
-    gen_fleetDst <- fmap abs arbitrary
-    gen_fleetTotalTurns <- fmap abs arbitrary
-    gen_fleetRemainingTurns <- fmap abs arbitrary
+    gen_fleetNumberShip <- generateSmallPositiveInt
+    gen_fleetSrc <- generateSmallPositiveInt
+    gen_fleetDst <- generateSmallPositiveInt
+    gen_fleetTotalTurns <- generateSmallPositiveInt
+    gen_fleetRemainingTurns <- generateSmallPositiveInt
     return $ Fleet gen_fleetNumberShip gen_fleetSrc gen_fleetDst gen_fleetTotalTurns gen_fleetOwner gen_fleetRemainingTurns
+
+generateSmallPositiveInt :: Gen Int
+generateSmallPositiveInt = do 
+  elements [1..1000]
 
 generateSmallDouble :: Gen Double 
 generateSmallDouble = do
